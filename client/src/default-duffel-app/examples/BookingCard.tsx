@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Offer, Order } from '@duffel/api'
 import { Card } from '../components/Card'
-import { formatCurrency, getAirlineLogoUrl } from '../utils'
+import { formatCurrency, getAirlineLogoUrl } from '../../utils'
 import { GENERIC_ERROR_MESSAGE } from './constants'
 
 interface BookingCardProps {

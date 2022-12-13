@@ -1,7 +1,7 @@
 import { Order } from '@duffel/api'
 import React from 'react'
 import { Card } from '../components/Card'
-import { formatCurrency, getAirlineLogoUrl } from '../utils'
+import { formatCurrency, getAirlineLogoUrl } from '../../utils'
 
 interface ConfirmationCardProps {
   order: Order
