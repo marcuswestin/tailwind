@@ -1,5 +1,5 @@
-import React from 'react';
-import { Logo } from './Logo';
+import React from 'react'
+import { Logo } from './Logo'
 
 export const Header: React.FC = () => (
   <header className="header">
@@ -12,25 +12,22 @@ export const Header: React.FC = () => (
         <a
           href="https://changelog.duffel.com"
           target="_blank"
-          rel="noopener noreferrer"
-        >
+          rel="noopener noreferrer">
           Changelog
         </a>
         <a
           href="https://duffel.com/docs/api/overview/welcome"
           target="_blank"
-          rel="noopener noreferrer"
-        >
+          rel="noopener noreferrer">
           API Reference
         </a>
         <a
           href="https://duffel.com/docs"
           target="_blank"
-          rel="noopener noreferrer"
-        >
+          rel="noopener noreferrer">
           API Guides
         </a>
       </nav>
     </div>
   </header>
-);
+)

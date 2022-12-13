@@ -1,10 +1,10 @@
-import { Order } from '@duffel/api';
-import React from 'react';
-import { Card } from '../components/Card';
-import { formatCurrency, getAirlineLogoUrl } from '../utils';
+import { Order } from '@duffel/api'
+import React from 'react'
+import { Card } from '../components/Card'
+import { formatCurrency, getAirlineLogoUrl } from '../utils'
 
 interface ConfirmationCardProps {
-  order: Order;
+  order: Order
 }
 
 export const ConfirmationCard: React.FC<ConfirmationCardProps> = ({
@@ -36,4 +36,4 @@ export const ConfirmationCard: React.FC<ConfirmationCardProps> = ({
       Booking reference: <strong>{order.booking_reference}</strong>
     </p>
   </>
-);
+)

@@ -1,1 +1,1 @@
-export type Resource<T> = T | null | 'loading' | Error;
+export type Resource<T> = T | null | 'loading' | Error

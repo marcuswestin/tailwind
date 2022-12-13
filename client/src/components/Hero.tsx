@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'
 
 export const Hero: React.FC = () => (
   <div className="hero">
@@ -13,10 +13,9 @@ export const Hero: React.FC = () => (
         href="https://duffel.com/docs/api/overview/welcome"
         target="_blank"
         rel="noopenner noreferrer"
-        className="hero__link"
-      >
+        className="hero__link">
         View our API documentation
       </a>
     </div>
   </div>
-);
+)

@@ -1,13 +1,13 @@
-import { useState } from 'react';
-import { Offer, Order } from '@duffel/api';
-import { Card } from '../components/Card';
-import { formatCurrency, getAirlineLogoUrl } from '../utils';
-import { GENERIC_ERROR_MESSAGE } from './constants';
+import { useState } from 'react'
+import { Offer, Order } from '@duffel/api'
+import { Card } from '../components/Card'
+import { formatCurrency, getAirlineLogoUrl } from '../utils'
+import { GENERIC_ERROR_MESSAGE } from './constants'
 
 interface BookingCardProps {
-  offer: Offer;
-  onSuccess(order: Order): void;
-  onError(e: Error): void;
+  offer: Offer
+  onSuccess(order: Order): void
+  onError(e: Error): void
 }
 
 export const BookingCard: React.FC<BookingCardProps> = ({
@@ -15,10 +15,10 @@ export const BookingCard: React.FC<BookingCardProps> = ({
   onSuccess,
   onError,
 }) => {
-  const [isFetching, setIsFetching] = useState(false);
+  const [isFetching, setIsFetching] = useState(false)
 
   const bookOffer = async () => {
-    setIsFetching(true);
+    setIsFetching(true)
 
     const res = await fetch(`/api/book`, {
       method: 'post',
@@ -40,24 +40,24 @@ export const BookingCard: React.FC<BookingCardProps> = ({
         currency: offer.total_currency,
         amount: offer.total_amount,
       }),
-    });
+    })
 
-    const { order, errors } = await res.json();
+    const { order, errors } = await res.json()
 
-    setIsFetching(false);
+    setIsFetching(false)
 
     if (Array.isArray(errors)) {
-      onError(new Error(errors[0].title));
-      return;
+      onError(new Error(errors[0].title))
+      return
     }
 
     if (!order) {
-      onError(new Error(GENERIC_ERROR_MESSAGE));
-      return;
+      onError(new Error(GENERIC_ERROR_MESSAGE))
+      return
     }
 
-    onSuccess(order);
-  };
+    onSuccess(order)
+  }
 
   return (
     <>
@@ -79,11 +79,10 @@ export const BookingCard: React.FC<BookingCardProps> = ({
         </Card.Content>
         <Card.Button
           disabled={isFetching}
-          onClick={async () => await bookOffer()}
-        >
+          onClick={async () => await bookOffer()}>
           {isFetching ? 'Booking…' : 'Book'}
         </Card.Button>
       </Card.Root>
     </>
-  );
-};
+  )
+}

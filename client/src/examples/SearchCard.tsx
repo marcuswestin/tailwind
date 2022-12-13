@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { Card } from '../components/Card';
-import { Offer } from '@duffel/api';
-import { GENERIC_ERROR_MESSAGE } from './constants';
+import React, { useState } from 'react'
+import { Card } from '../components/Card'
+import { Offer } from '@duffel/api'
+import { GENERIC_ERROR_MESSAGE } from './constants'
 
 interface SearchCardProps {
-  beforeSearch(): void;
-  onSuccess(offer: Offer): void;
-  onError(e: Error): void;
+  beforeSearch(): void
+  onSuccess(offer: Offer): void
+  onError(e: Error): void
 }
 
 export const SearchCard: React.FC<SearchCardProps> = ({
@@ -15,15 +15,15 @@ export const SearchCard: React.FC<SearchCardProps> = ({
   onError,
 }) => {
   const [sort, setSort] = useState<'total_amount' | 'total_duration'>(
-    'total_duration'
-  );
-  const [origin, setOrigin] = useState('JFK');
-  const [destination, setDestination] = useState('LHR');
-  const [isFetching, setIsFetching] = useState(false);
+    'total_duration',
+  )
+  const [origin, setOrigin] = useState('JFK')
+  const [destination, setDestination] = useState('LHR')
+  const [isFetching, setIsFetching] = useState(false)
 
   const fetchOffers = async () => {
-    beforeSearch();
-    setIsFetching(true);
+    beforeSearch()
+    setIsFetching(true)
 
     try {
       const res = await fetch('/api/search', {
@@ -36,31 +36,31 @@ export const SearchCard: React.FC<SearchCardProps> = ({
           destination,
           sort,
         }),
-      });
+      })
 
-      const { offer, errors } = await res.json();
+      const { offer, errors } = await res.json()
 
       if (errors) {
         onError(
           new Error(
-            Array.isArray(errors) ? errors[0].title : GENERIC_ERROR_MESSAGE
-          )
-        );
-        return;
+            Array.isArray(errors) ? errors[0].title : GENERIC_ERROR_MESSAGE,
+          ),
+        )
+        return
       }
 
       if (!offer) {
-        onError(new Error(GENERIC_ERROR_MESSAGE));
-        return;
+        onError(new Error(GENERIC_ERROR_MESSAGE))
+        return
       }
 
-      onSuccess(offer);
+      onSuccess(offer)
     } catch (e) {
-      onError(e instanceof Error ? e : new Error(GENERIC_ERROR_MESSAGE));
+      onError(e instanceof Error ? e : new Error(GENERIC_ERROR_MESSAGE))
     }
 
-    setIsFetching(false);
-  };
+    setIsFetching(false)
+  }
 
   return (
     <>
@@ -71,7 +71,7 @@ export const SearchCard: React.FC<SearchCardProps> = ({
         <Card.Content>
           <Card.Highlight secondary>Next available</Card.Highlight>
           <Card.Select
-            onSelect={(option) => setSort(option as any)}
+            onSelect={option => setSort(option as any)}
             defaultValue={sort}
             options={[
               { value: 'total_amount', label: 'cheapest flight' },
@@ -107,5 +107,5 @@ export const SearchCard: React.FC<SearchCardProps> = ({
         </Card.Button>
       </Card.Root>
     </>
-  );
-};
+  )
+}

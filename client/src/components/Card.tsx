@@ -1,31 +1,31 @@
-import * as React from 'react';
-import cx from 'classnames';
+import * as React from 'react'
+import cx from 'classnames'
 
 interface SharedProps {
-  className?: string;
-  children?: React.ReactNode;
+  className?: string
+  children?: React.ReactNode
 }
 
 const Root: React.FC<SharedProps> = ({ className, children }) => (
   <div className={cx('card', className)}>{children}</div>
-);
+)
 
 const Content: React.FC<SharedProps> = ({ className, children }) => (
   <div className={cx('card__content', className)}>{children}</div>
-);
+)
 
 interface TextProps extends SharedProps {
-  color: 'dark' | 'light';
+  color: 'dark' | 'light'
 }
 
 const Text: React.FC<TextProps> = ({ className, children, color = 'dark' }) => (
   <span className={cx('card__text', `card__text--${color}`, className)}>
     {children}
   </span>
-);
+)
 
 interface HighlightProps extends SharedProps {
-  secondary?: boolean;
+  secondary?: boolean
 }
 
 const Highlight: React.FC<HighlightProps> = ({
@@ -37,17 +37,16 @@ const Highlight: React.FC<HighlightProps> = ({
     className={cx(
       'card__highlight',
       { 'card__highlight--secondary': secondary },
-      className
-    )}
-  >
+      className,
+    )}>
     {children}
   </span>
-);
+)
 
 interface SelectProps extends SharedProps {
-  onSelect: (iataCode: string) => void;
-  defaultValue: string;
-  options: { value: string; label: string }[];
+  onSelect: (iataCode: string) => void
+  defaultValue: string
+  options: { value: string; label: string }[]
 }
 
 const Select: React.FC<SelectProps> = ({
@@ -59,20 +58,19 @@ const Select: React.FC<SelectProps> = ({
   <select
     className={cx('card__select', className)}
     defaultValue={defaultValue}
-    onChange={(event) => onSelect(event.target.value)}
-  >
+    onChange={event => onSelect(event.target.value)}>
     {options.map(({ value, label }) => (
       <option value={value} key={value}>
         {label}
       </option>
     ))}
   </select>
-);
+)
 
 interface ButtonProps extends SharedProps {
-  secondary?: boolean;
-  onClick?: () => void;
-  disabled?: boolean;
+  secondary?: boolean
+  onClick?: () => void
+  disabled?: boolean
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -85,13 +83,12 @@ const Button: React.FC<ButtonProps> = ({
     className={cx(
       'card__btn',
       { 'card__btn--secondary': secondary },
-      className
+      className,
     )}
-    {...props}
-  >
+    {...props}>
     {children}
   </button>
-);
+)
 
 export const Card = {
   Root,
@@ -100,4 +97,4 @@ export const Card = {
   Select,
   Text,
   Content,
-};
+}
