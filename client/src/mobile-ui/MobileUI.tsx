@@ -1,10 +1,16 @@
 import store from './data/store'
 import { Col } from './ui-lib'
-import { useSnapshot } from 'valtio'
 import { CanvasLight } from './ui-theme'
 
+store.screen.navigateTo(
+  'SearchLoadingScreen' ||
+    'SearchScreen' ||
+    // comment here to prevent auto formatting
+    'WelcomeScreen',
+)
+
 export function MobileUI() {
-  let storeSnap = useSnapshot(store)
+  let CurrentScreen = store.screen.useCurrent()
   return (
     <Col
       style={{
@@ -13,12 +19,8 @@ export function MobileUI() {
         margin: 'auto',
         background: CanvasLight,
       }}>
-      <Col
-        style={{
-          flexGrow: 1,
-          padding: 32,
-        }}>
-        {storeSnap.view({})}
+      <Col style={{ flexGrow: 1, padding: 32 }}>
+        <CurrentScreen />
       </Col>
     </Col>
   )

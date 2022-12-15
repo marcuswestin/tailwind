@@ -1,4 +1,3 @@
-import { SearchScreen } from './2-SearchScreen'
 import store from './data/store'
 import { Button, Screen } from './ui-lib'
 
@@ -9,7 +8,7 @@ export function WelcomeScreen() {
 
       <Button
         onClick={() => {
-          store.view = SearchScreen
+          store.screen.navigateTo('SearchScreen')
         }}>
         Begin flying
       </Button>

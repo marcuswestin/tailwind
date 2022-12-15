@@ -31,7 +31,7 @@ export function SearchScreen() {
           marginTop: 'auto',
         }}
         onClick={() => {
-          store.view = SearchLoadingScreen
+          store.screen.navigateTo('SearchLoadingScreen')
         }}>
         <div style={{ padding: 10 }}>Search</div>
       </Button>
