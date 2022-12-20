@@ -102,8 +102,6 @@ export function SearchScreen() {
         />
       </AutocompleteInput>
 
-      <SearchInput text="New York, NY (All airports)" />
-      <SearchInput text="Miami, FL (MIA)" />
       <SearchInput text="Mon, February 6, 2023" />
       <SearchInput text="1 Passenger" />
       <Button
