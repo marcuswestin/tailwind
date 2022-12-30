@@ -47,7 +47,15 @@ const inputStyles = {
   borderRadius: 6,
 }
 
-export function SearchScreen() {
+export default Navigation.makeScreen('SearchScreen', function () {
+  return (
+    <Suspense fallback={<div>Loading!</div>}>
+      <LoadedSearchScreen />
+    </Suspense>
+  )
+})
+
+function LoadedSearchScreen() {
   let snap = useSnapshot(uiStore)
   let [fromText, setFromAirport] = useState('')
   let [toText, setToAirport] = useState('')

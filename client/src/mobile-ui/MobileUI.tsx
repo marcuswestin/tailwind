@@ -1,16 +1,16 @@
-import store from './data/store'
+import { WelcomeScreen } from './1-WelcomeScreen'
+import { Navigation } from './data/store'
 import { Col } from './ui-lib'
 import { CanvasLight } from './ui-theme'
 
-store.screen.navigateTo(
-  'SearchLoadingScreen' ||
-    'SearchScreen' ||
-    // comment here to prevent auto formatting
-    'WelcomeScreen',
-)
+Navigation.setScreen(WelcomeScreen, {})
 
 export function MobileUI() {
-  let CurrentScreen = store.screen.useCurrent()
+  let currentScreen = Navigation.useCurrent()
+  let backButton = Navigation.canPop() && (
+    <div onClick={Navigation.popScreen}>Back</div>
+  )
+
   return (
     <Col
       style={{
@@ -20,7 +20,8 @@ export function MobileUI() {
         background: CanvasLight,
       }}>
       <Col style={{ flexGrow: 1, padding: 32 }}>
-        <CurrentScreen />
+        {backButton}
+        {currentScreen}
       </Col>
     </Col>
   )
