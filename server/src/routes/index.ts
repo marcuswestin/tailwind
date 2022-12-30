@@ -37,6 +37,7 @@ router.post('/search', async (req, res) => {
     })
 
     res.send({
+      offers: offersResponse.data,
       offer: offersResponse.data[0],
     })
   } catch (e: unknown) {

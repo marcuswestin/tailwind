@@ -6,6 +6,8 @@ import express, { NextFunction, Request, Response } from 'express'
 import { StatusCodes } from 'http-status-codes'
 
 import BaseRouter from './routes'
+import { readFileSync } from 'fs'
+import path from 'path'
 
 const app = express()
 
@@ -27,6 +29,13 @@ app.use('/api', BaseRouter)
 
 app.use('/__vite_ping', (_: Request, res: Response) => {
   return res.status(200).send('ok')
+})
+
+const airportsData = readFileSync(path.join(__dirname, 'data/airports.json'))
+app.use('/data/airports.json', async (_: Request, res: Response) => {
+  setTimeout(() => {
+    res.status(200).send(airportsData)
+  }, 100)
 })
 
 // Print API errors

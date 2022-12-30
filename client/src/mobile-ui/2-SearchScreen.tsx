@@ -1,25 +1,38 @@
 import { Offer } from '@duffel/api'
 import { proxy, useSnapshot } from 'valtio'
-import store from './data/store'
 import { SearchCard } from '../default-duffel-app/examples/SearchCard'
 import { Box, Button, Col, Row } from './ui-lib'
 import { CanvasLight, FillLight, InkDark } from './ui-theme'
-import _airports from './data/airports.json'
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import AutocompleteInput from './components/AutocompleteInput'
 import { AutocompleteOption } from './components/AutocompleteInput-utils'
+import { SearchLoadingScreen } from './3-SearchLoadingScreen'
+import { SearchResultsScreen } from './4-SearchResultsScreen'
+import { Navigation } from './data/store'
 
 type SearchStore = {
   searchType: 'One way' | 'Round trip' | 'Multi-city'
   fromAirport: AutocompleteOption | null
   toAirport: AutocompleteOption | null
+  airportOptions: Promise<AutocompleteOption[]>
 }
+
+const airportsData: Promise<Airport[]> = fetch('/data/airports.json').then(
+  res => res.json(),
+)
+
 let uiStore = proxy<SearchStore>({
   searchType: 'One way',
   fromAirport: null,
   toAirport: null,
+  airportOptions: airportsData.then((airportsRaw: Airport[]) => {
+    return airportsRaw
+      .filter(airport => airport.iata_code !== null)
+      .map(airport => ({ id: airport.iata_code, label: airport.name }))
+  }),
 })
 
+type Airport = typeof airportExample
 const airportExample = {
   name: 'Hartsfield Jackson Atlanta Intl',
   city: 'Atlanta',
@@ -33,12 +46,6 @@ const airportExample = {
   objectID: '3682',
 }
 
-type Airport = typeof airportExample
-const airports: Airport[] = _airports as Airport[]
-
-const airportOptions = airports
-  .filter(airport => airport.iata_code !== null)
-  .map(airport => ({ id: airport.iata_code, label: airport.name }))
 
 const inputStyles = {
   borderColor: InkDark,
@@ -80,7 +87,7 @@ function LoadedSearchScreen() {
       <AutocompleteInput
         allowEnterFill
         allowTabFill
-        options={airportOptions}
+        options={snap.airportOptions}
         onSelect={value => (uiStore.fromAirport = value)}>
         <input
           onChange={e => {
@@ -97,7 +104,7 @@ function LoadedSearchScreen() {
       <AutocompleteInput
         allowEnterFill
         allowTabFill
-        options={airportOptions}
+        options={snap.airportOptions}
         onSelect={value => (uiStore.toAirport = value)}>
         <input
           onChange={e => {
@@ -116,8 +123,31 @@ function LoadedSearchScreen() {
         style={{
           marginTop: 'auto',
         }}
-        onClick={() => {
-          store.screen.navigateTo('SearchLoadingScreen')
+        onClick={async () => {
+          let [origin, destination] = [
+            uiStore.fromAirport!.id as string,
+            uiStore.toAirport!.id as string,
+          ]
+          Navigation.pushScreen(SearchLoadingScreen, {
+            from: origin,
+            to: destination,
+          })
+
+          let sort = 'total_amount' || 'total_duration'
+          const res = await fetch('/api/search', {
+            method: 'post',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ origin, destination, sort }),
+          })
+          const { offers, errors } = await res.json()
+          if (errors) {
+            console.log(errors)
+            return
+          }
+
+          Navigation.pushScreen(SearchResultsScreen, { offers })
         }}>
         <div style={{ padding: 10 }}>Search</div>
       </Button>
