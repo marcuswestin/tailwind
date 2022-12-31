@@ -33,7 +33,7 @@ router.post('/search', async (req, res) => {
     const offersResponse = await duffel.offers.list({
       offer_request_id: offerRequestsResponse.data.id,
       sort,
-      limit: 1,
+      // limit: 100,
     })
 
     res.send({
