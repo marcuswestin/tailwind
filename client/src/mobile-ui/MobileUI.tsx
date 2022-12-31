@@ -7,7 +7,7 @@ loadScreenStack()
 
 export function MobileUI() {
   let currentScreen = Navigation.useCurrent()
-  let backButton = Navigation.canPop() && (
+  let backButton = Navigation.useCanPop() && (
     <div onClick={Navigation.popScreen}>Back</div>
   )
 

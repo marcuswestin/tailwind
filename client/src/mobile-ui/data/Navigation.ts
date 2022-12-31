@@ -44,8 +44,9 @@ export function makeNavigation(screenStackRaw: ScreenStack) {
     isEmpty() {
       return screenStack.length === 0
     },
-    canPop() {
-      return screenStack.length > 1
+    useCanPop() {
+      let snap = useSnapshot(screenStack)
+      return snap.length > 1
     },
 
     makeScreen<Props extends {}, ScreenFn extends ScreenFnT<Props>>(
