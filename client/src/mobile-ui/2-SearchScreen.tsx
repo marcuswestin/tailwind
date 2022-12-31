@@ -9,6 +9,7 @@ import { AutocompleteOption } from './components/AutocompleteInput-utils'
 import { SearchLoadingScreen } from './3-SearchLoadingScreen'
 import { SearchResultsScreen } from './4-SearchResultsScreen'
 import { Navigation } from './data/store'
+import { net } from './data/net'
 
 type SearchStore = {
   searchType: 'One way' | 'Round trip' | 'Multi-city'
@@ -128,20 +129,22 @@ function LoadedSearchScreen() {
             uiStore.fromAirport!.id as string,
             uiStore.toAirport!.id as string,
           ]
+
+          // TODO: This should either be marked as non-poppable,
+          // or detact popScreen happening during request and if so
+          // cancel the request and following replaceCurrentScreen below.
           Navigation.pushScreen(SearchLoadingScreen, {
             from: origin,
             to: destination,
           })
 
-          let sort = 'total_amount' || 'total_duration'
-          const res = await fetch('/api/search', {
-            method: 'post',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ origin, destination, sort }),
+          const sort = 'total_amount' || 'total_duration'
+          const res = await net.post('/api/search', {
+            origin,
+            destination,
+            sort,
           })
-          const { offers, errors } = await res.json()
+          const { offers, errors } = res
           if (errors) {
             console.log(errors)
             return
