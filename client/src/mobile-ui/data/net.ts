@@ -1,9 +1,11 @@
+import flags from './flags'
+
 export const net = {
-  cache: true,
+  cacheRequests: false,
   async post(url: string, params: any) {
     let jsonReq = JSON.stringify(params)
     let cacheKey = 'net-cache:' + url + ':' + jsonReq
-    if (this.cache && cacheKey in localStorage) {
+    if (flags.cacheRequests && cacheKey in localStorage) {
       await new Promise(resolve => setTimeout(resolve, 500))
       return JSON.parse(localStorage[cacheKey])
     }

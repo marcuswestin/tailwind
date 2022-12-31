@@ -1,16 +1,14 @@
 import React from 'react'
-import { proxy, useSnapshot } from 'valtio'
+import { useSnapshot } from 'valtio'
 
 type ScreenFnT<ParamsT> = React.FC<ParamsT>
 
-export function makeNavigation<
-  ScreenNamess extends Readonly<Array<string>>,
->(props: { screenNames: ScreenNamess }) {
-  type ScreenNames = typeof props.screenNames[number]
+export type ScreenStack = unknown[] // Opaque
 
+export function makeNavigation(screenStackRaw: ScreenStack) {
   type NamedScreen<ScreenFn extends ScreenFnT<Props>, Props extends {}> = {
-    name: ScreenNames
-    fn: ScreenFn
+    screenName: string
+    screenFn: ScreenFn
   }
 
   type NavScreen<
@@ -19,31 +17,48 @@ export function makeNavigation<
     Screen extends NamedScreen<ScreenFn, Props>,
   > = {
     screen: Screen
-    props: Parameters<Screen['fn']>[0]
+    props: Parameters<ScreenFn>[0]
   }
 
-  type ScreenStack = NavScreen<{}, any, any>[]
-  const screenStack: ScreenStack = []
+  type ScreenStackInternal = NavScreen<{}, any, NamedScreen<any, any>>[]
+  const screenStack: ScreenStackInternal = screenStackRaw as ScreenStackInternal
+  const screenFns: Record<
+    string,
+    typeof screenStack[number]['screen']['screenFn']
+  > = {}
 
-  const store = proxy({
-    screenStack,
-
+  return {
     useCurrent() {
-      let screenSnap = useSnapshot(store)
-      let screenStack = screenSnap.screenStack
-      let navScreen = screenStack[screenStack.length - 1]
-      return React.createElement(navScreen.screen.fn, navScreen.props)
+      let snap = useSnapshot(screenStack)
+      if (snap.length) {
+        let navScreen = snap[snap.length - 1]
+        let screenFn = screenFns[navScreen.screen.screenName]
+        return React.createElement(screenFn, navScreen.props)
+      } else {
+        return React.createElement('div', {
+          children: ['Empty navigation stack'],
+        })
+      }
     },
 
+    isEmpty() {
+      return screenStack.length === 0
+    },
     canPop() {
-      return store.screenStack.length > 1
+      return screenStack.length > 1
     },
 
     makeScreen<Props extends {}, ScreenFn extends ScreenFnT<Props>>(
-      name: ScreenNames,
-      fn: ScreenFn,
+      screenName: string,
+      screenFn: ScreenFn,
     ): NamedScreen<ScreenFn, Props> {
-      return { name, fn }
+      if (screenFns[screenName]) {
+        throw new Error(
+          `makeScreen: Duplicate screen screenName: ${screenName}`,
+        )
+      }
+      screenFns[screenName] = screenFn
+      return { screenName, screenFn }
     },
 
     pushScreen: function <
@@ -51,12 +66,20 @@ export function makeNavigation<
       ScreenFn extends ScreenFnT<Props>,
       Screen extends NamedScreen<ScreenFn, Props>,
     >(screen: Screen, props?: Props) {
-      store.screenStack.push({ screen, props: props || {} })
-      // store.screenStack = [{ screen, props }]
+      screenStack.push({ screen, props: props || {} })
     },
 
     popScreen: function () {
-      store.screenStack.pop()
+      screenStack.pop()
+    },
+
+    replaceCurrentScreen: function <
+      Props extends {},
+      ScreenFn extends ScreenFnT<Props>,
+      Screen extends NamedScreen<ScreenFn, Props>,
+    >(screen: Screen, props?: Props) {
+      this.popScreen()
+      this.pushScreen(screen, props)
     },
 
     setScreen: function <
@@ -64,10 +87,23 @@ export function makeNavigation<
       ScreenFn extends ScreenFnT<Props>,
       Screen extends NamedScreen<ScreenFn, Props>,
     >(screen: Screen, props?: Props) {
-      store.screenStack = []
-      store.pushScreen(screen, props)
+      screenStack.splice(0, screenStack.length)
+      this.pushScreen(screen, props)
     },
-  })
 
-  return store
+    setScreenStack: function (newScreenStackRaw: ScreenStack) {
+      let newScreenStackInternal = newScreenStackRaw as ScreenStackInternal
+      newScreenStackInternal.forEach(navScreen => {
+        // TODO: This is hacky.
+        // Instead, remove screenFn from screen objects.
+        let screenName = navScreen.screen.screenName
+        if (!screenFns[screenName]) {
+          throw new Error('Unknown screen name: ' + screenName)
+        }
+        navScreen.screen.screenFn = screenFns[screenName]
+      })
+      let newScreenStack = newScreenStackRaw as ScreenStackInternal
+      screenStack.splice(0, newScreenStackRaw.length, ...newScreenStack)
+    },
+  }
 }

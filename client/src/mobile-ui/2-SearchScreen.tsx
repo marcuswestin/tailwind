@@ -150,7 +150,7 @@ function LoadedSearchScreen() {
             return
           }
 
-          Navigation.pushScreen(SearchResultsScreen, { offers })
+          Navigation.replaceCurrentScreen(SearchResultsScreen, { offers })
         }}>
         <div style={{ padding: 10 }}>Search</div>
       </Button>

@@ -1,9 +1,9 @@
-import { WelcomeScreen } from './1-WelcomeScreen'
 import { Navigation } from './data/store'
+import { loadScreenStack } from './mobile-init'
 import { Col } from './ui-lib'
 import { CanvasLight } from './ui-theme'
 
-Navigation.setScreen(WelcomeScreen, {})
+loadScreenStack()
 
 export function MobileUI() {
   let currentScreen = Navigation.useCurrent()

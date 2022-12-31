@@ -1,7 +1,7 @@
 import { Navigation } from './data/store'
 
 export let SearchResultsScreen = Navigation.makeScreen(
-  'SearchScreen',
+  'SearchResultsScreen',
   function (params: { offers: any[] }) {
     return (
       <div>
