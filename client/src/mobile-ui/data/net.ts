@@ -1,3 +1,4 @@
+import Log from './Log'
 import flags from './flags'
 
 export const net = {
@@ -14,8 +15,12 @@ export const net = {
       headers: { 'Content-Type': 'application/json' },
       body: jsonReq,
     })
-    const jsonRes = await res.json()
-    localStorage.setItem(cacheKey, JSON.stringify(jsonRes))
-    return jsonRes
+    if (res.ok) {
+      const jsonRes = await res.json()
+      localStorage.setItem(cacheKey, JSON.stringify(jsonRes))
+      return jsonRes
+    } else {
+      Log.panic('Request error:', res.status, res.statusText, url, params)
+    }
   },
 }
