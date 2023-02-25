@@ -1,10 +1,12 @@
 import { proxy, subscribe } from 'valtio'
-import { ScreenStack, makeNavigation } from './Navigation'
+import { ScreenStack } from '../navigation/ValtioStoreNavigation'
+import { Offer } from '@duffel/api'
+import { makeURLHashNavigation } from '../navigation/URLHashNavigation'
 
 export function proxyWithPersist<DataT extends {}>(
   persistKey: string,
   initialState: DataT,
-): ReturnType<typeof proxy<DataT>> {
+): { store: ReturnType<typeof proxy<DataT>>; clearPersistedState: () => void } {
   const store = loadStore()
 
   subscribe(store, () => {
@@ -12,30 +14,50 @@ export function proxyWithPersist<DataT extends {}>(
     localStorage.setItem(persistKey, json)
   })
 
-  return store
+  return {
+    store,
+    clearPersistedState() {
+      localStorage.removeItem(persistKey)
+      window.location.reload()
+    },
+  }
 
   function loadStore() {
+    let state = {}
     try {
+      // throw Error('No state persisted')
       let json = localStorage.getItem(persistKey)
       if (!json) {
         throw Error('No state persisted')
       }
-      return proxy<DataT>(JSON.parse(json))
+      Object.assign(state, initialState, JSON.parse(json))
     } catch (e) {
-      return proxy<DataT>(initialState)
+      state = proxy<DataT>(initialState)
     }
+    return proxy<DataT>(state as any)
   }
 }
 
-const store = proxyWithPersist<Store>('store-dev', {
+const persistKey = 'store-dev'
+export const { store, clearPersistedState } = proxyWithPersist<Store>(persistKey, {
   // Initial state:
   screenStack: [],
+  offersRequest: new Promise(resolve => resolve([])),
+})
+
+export const ephemeralStore = proxy<{
+  pendingRequests: Promise<any>[]
+}>({
+  pendingRequests: [],
 })
 
 type Store = {
-  screenStack: ScreenStack
+  readonly screenStack: ScreenStack
+  offersRequest: Promise<Offer[]>
 }
 
-export const Navigation = makeNavigation(store.screenStack)
+// export const Navigation = makeValtioStoreNavigation(store.screenStack)
+// export const Navigation = makeURLHistoryNavigation(store.screenStack)
+export const Navigation = makeURLHashNavigation()
 
 export default store

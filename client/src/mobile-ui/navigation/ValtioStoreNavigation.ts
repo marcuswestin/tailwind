@@ -1,11 +1,11 @@
 import React from 'react'
 import { useSnapshot } from 'valtio'
 
-type ScreenFnT<ParamsT> = React.FC<ParamsT>
-
 export type ScreenStack = unknown[] // Opaque
 
-export function makeNavigation(screenStackRaw: ScreenStack) {
+export function makeValtioStoreNavigation(screenStackRaw: ScreenStack) {
+  type ScreenFnT<ParamsT> = React.FC<ParamsT>
+
   type NamedScreen<ScreenFn extends ScreenFnT<Props>, Props extends {}> = {
     screenName: string
     screenFn: ScreenFn
@@ -22,12 +22,20 @@ export function makeNavigation(screenStackRaw: ScreenStack) {
 
   type ScreenStackInternal = NavScreen<{}, any, NamedScreen<any, any>>[]
   const screenStack: ScreenStackInternal = screenStackRaw as ScreenStackInternal
-  const screenFns: Record<
-    string,
-    typeof screenStack[number]['screen']['screenFn']
-  > = {}
+  const screenFns: Record<string, ScreenStackInternal[number]['screen']['screenFn']> = {}
 
   return {
+    makeScreen<Props extends {}, ScreenFn extends ScreenFnT<Props>>(
+      screenName: string,
+      screenFn: ScreenFn,
+    ): NamedScreen<ScreenFn, Props> {
+      if (screenFns[screenName]) {
+        throw new Error(`makeScreen: Duplicate screen screenName: ${screenName}`)
+      }
+      screenFns[screenName] = screenFn
+      return { screenName, screenFn }
+    },
+
     useCurrent() {
       let snap = useSnapshot(screenStack)
       if (snap.length) {
@@ -41,25 +49,20 @@ export function makeNavigation(screenStackRaw: ScreenStack) {
       }
     },
 
-    isEmpty() {
-      return screenStack.length === 0
+    useScreens() {
+      return useSnapshot(screenStack).map(navScreen => {
+        let screenFn = screenFns[navScreen.screen.screenName]
+        return React.createElement(screenFn, navScreen.props)
+      })
     },
+
     useCanPop() {
       let snap = useSnapshot(screenStack)
       return snap.length > 1
     },
 
-    makeScreen<Props extends {}, ScreenFn extends ScreenFnT<Props>>(
-      screenName: string,
-      screenFn: ScreenFn,
-    ): NamedScreen<ScreenFn, Props> {
-      if (screenFns[screenName]) {
-        throw new Error(
-          `makeScreen: Duplicate screen screenName: ${screenName}`,
-        )
-      }
-      screenFns[screenName] = screenFn
-      return { screenName, screenFn }
+    isEmpty() {
+      return screenStack.length === 0
     },
 
     pushScreen: function <
@@ -95,8 +98,7 @@ export function makeNavigation(screenStackRaw: ScreenStack) {
     setScreenStack: function (newScreenStackRaw: ScreenStack) {
       let newScreenStackInternal = newScreenStackRaw as ScreenStackInternal
       newScreenStackInternal.forEach(navScreen => {
-        // TODO: This is hacky.
-        // Instead, remove screenFn from screen objects.
+        // TODO: This is hacky. Instead, remove screenFn from screen objects.
         let screenName = navScreen.screen.screenName
         if (!screenFns[screenName]) {
           throw new Error('Unknown screen name: ' + screenName)

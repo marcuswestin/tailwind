@@ -1,16 +1,10 @@
 import { InkDark, CanvasMedium } from './ui-theme'
 
-function makeWritableCopy<T extends {} | null>(
-  obj: T,
-  additionalProps?: T,
-): NonNullable<T> {
+function makeWritableCopy<T extends {} | null>(obj: T, additionalProps?: T): NonNullable<T> {
   return { ...obj, ...additionalProps } as NonNullable<T>
 }
 
-type ElementProps = React.DetailedHTMLProps<
-  React.HTMLAttributes<HTMLDivElement>,
-  HTMLDivElement
->
+type ElementProps = React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>
 type ElementStyle = ElementProps['style']
 
 export function makeBoxView(styles: ElementStyle) {
@@ -29,14 +23,14 @@ export const Row = makeBoxView({
   display: 'flex',
   flexDirection: 'row',
   flexWrap: 'nowrap',
-  flexGrow: 1,
+  // flexGrow: 1,
 } as ElementStyle)
 
 export const Col = makeBoxView({
   display: 'flex',
   flexDirection: 'column',
   flexWrap: 'nowrap',
-  flexGrow: 1,
+  // flexGrow: 1,
 } as ElementStyle)
 
 export const Box = makeBoxView({
@@ -54,10 +48,7 @@ export const Screen = makeBoxView({
 })
 
 export const Button = (
-  props: React.DetailedHTMLProps<
-    React.HTMLAttributes<HTMLButtonElement>,
-    HTMLButtonElement
-  >,
+  props: React.DetailedHTMLProps<React.HTMLAttributes<HTMLButtonElement>, HTMLButtonElement>,
 ) => {
   let styles = Object.assign({}, props.style, {
     marginTop: 'auto',
@@ -68,4 +59,11 @@ export const Button = (
     justifyContent: 'center',
   })
   return <button {...props} style={styles} />
+}
+
+type TappableProps<OnClickHandler extends React.MouseEventHandler<HTMLDivElement>> = React.PropsWithChildren<{
+  onClick: OnClickHandler
+}>
+export function Tappable(props: TappableProps<React.MouseEventHandler>) {
+  return <Box style={{ cursor: 'pointer' }} {...props} />
 }

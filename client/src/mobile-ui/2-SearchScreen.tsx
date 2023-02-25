@@ -1,15 +1,11 @@
-import { Offer } from '@duffel/api'
 import { proxy, useSnapshot } from 'valtio'
-import { SearchCard } from '../default-duffel-app/examples/SearchCard'
 import { Box, Button, Col, Row } from './ui-lib'
 import { CanvasLight, FillLight, InkDark } from './ui-theme'
 import { Suspense, useState } from 'react'
 import AutocompleteInput from './components/AutocompleteInput'
 import { AutocompleteOption } from './components/AutocompleteInput-utils'
-import { SearchLoadingScreen } from './3-SearchLoadingScreen'
-import { SearchResultsScreen } from './4-SearchResultsScreen'
 import { Navigation } from './data/store'
-import { net } from './data/net'
+import { SearchResultsScreen3 } from './4-SearchResultsScreen'
 
 type SearchStore = {
   searchType: 'One way' | 'Round trip' | 'Multi-city'
@@ -18,9 +14,7 @@ type SearchStore = {
   airportOptions: Promise<AutocompleteOption[]>
 }
 
-const airportsData: Promise<Airport[]> = fetch('/data/airports.json').then(
-  res => res.json(),
-)
+const airportsData: Promise<Airport[]> = fetch('/data/airports.json').then(res => res.json())
 
 let uiStore = proxy<SearchStore>({
   searchType: 'One way',
@@ -47,6 +41,9 @@ const airportExample = {
   objectID: '3682',
 }
 
+// const airports: Airport[] = _airports as Airport[]
+// uiStore.fromAirport = airportOptions[0]
+// uiStore.toAirport = airportOptions[1]
 
 const inputStyles = {
   borderColor: InkDark,
@@ -57,7 +54,7 @@ const inputStyles = {
 
 export default Navigation.makeScreen('SearchScreen', function () {
   return (
-    <Suspense fallback={<div>Loading!</div>}>
+    <Suspense fallback={'Searching 100s of flights...'}>
       <LoadedSearchScreen />
     </Suspense>
   )
@@ -70,14 +67,7 @@ function LoadedSearchScreen() {
 
   return (
     <Col style={{ gap: 12 }}>
-      <Box style={{ alignSelf: 'center', fontWeight: 'bold' }}>
-        Search flights
-      </Box>
-      <SearchCard
-        beforeSearch={function (): void {}}
-        onSuccess={function (offer: Offer): void {}}
-        onError={function (e: Error): void {}}
-      />
+      <Box style={{ alignSelf: 'center', fontWeight: 'bold' }}>Search flights</Box>
       <Row style={{ justifyContent: 'space-between', flexGrow: 0, gap: 0 }}>
         <SearchType searchType="One way" />
         <SearchType searchType="Round trip" />
@@ -121,36 +111,11 @@ function LoadedSearchScreen() {
       <SearchInput text="Mon, February 6, 2023" />
       <SearchInput text="1 Passenger" />
       <Button
-        style={{
-          marginTop: 'auto',
-        }}
-        onClick={async () => {
-          let [origin, destination] = [
-            uiStore.fromAirport!.id as string,
-            uiStore.toAirport!.id as string,
-          ]
-
-          // TODO: This should either be marked as non-poppable,
-          // or detact popScreen happening during request and if so
-          // cancel the request and following replaceCurrentScreen below.
-          Navigation.pushScreen(SearchLoadingScreen, {
-            from: origin,
-            to: destination,
-          })
-
+        style={{ marginTop: 'auto' }}
+        onClick={() => {
+          let [origin, destination] = [uiStore.fromAirport!.id as string, uiStore.toAirport!.id as string]
           const sort = 'total_amount' || 'total_duration'
-          const res = await net.post('/api/search', {
-            origin,
-            destination,
-            sort,
-          })
-          const { offers, errors } = res
-          if (errors) {
-            console.log(errors)
-            return
-          }
-
-          Navigation.replaceCurrentScreen(SearchResultsScreen, { offers })
+          Navigation.pushScreen(SearchResultsScreen3, { origin, destination, sort })
         }}>
         <div style={{ padding: 10 }}>Search</div>
       </Button>
@@ -183,6 +148,9 @@ function SearchInput({ text }: { text: string }) {
   return (
     <input
       value={text}
+      onChange={() => {
+        console.log('TODO SearchInput onChange')
+      }}
       style={{
         borderColor: InkDark,
         color: InkDark,

@@ -1,17 +1,5 @@
-import React, {
-  useState,
-  cloneElement,
-  useEffect,
-  useRef,
-  ReactElement,
-  useMemo,
-} from 'react'
-import {
-  mergeRefs,
-  interpolateStyle,
-  sortAsc,
-  AutocompleteOption,
-} from './AutocompleteInput-utils'
+import React, { useState, cloneElement, useEffect, useRef, ReactElement, useMemo } from 'react'
+import { mergeRefs, interpolateStyle, sortAsc, AutocompleteOption } from './AutocompleteInput-utils'
 
 export interface AutocompleteInputProps {
   options: string[] | AutocompleteOption[]
@@ -30,9 +18,7 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = props => {
   const child = React.Children.only(props.children)
 
   if (child.type?.toString()?.toLowerCase() !== 'input') {
-    throw new TypeError(
-      `react-autocomplete-hint: 'Hint' only accepts an 'input' element as child.`,
-    )
+    throw new TypeError(`react-autocomplete-hint: 'Hint' only accepts an 'input' element as child.`)
   }
 
   let optionsRef = useRef(props.options)
@@ -42,6 +28,7 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = props => {
       optionsRef.current = (optionsRef.current as string[]).map(option => ({
         id: option,
         label: option,
+        value: option,
       }))
 
       let duplicates: Record<string, boolean> = {}
@@ -56,14 +43,7 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = props => {
 
   const options = optionsRef.current as AutocompleteOption[]
 
-  const {
-    disableHint,
-    allowTabFill,
-    allowEnterFill,
-    onSelect,
-    onHint,
-    valueModifier,
-  } = props
+  const { disableHint, allowTabFill, allowEnterFill, onSelect, onHint, valueModifier } = props
 
   const childProps = child.props
 
@@ -75,8 +55,7 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = props => {
   const [hint, setHint] = useState('')
   const [match, setMatch] = useState<AutocompleteOption>()
   const [matches, setMatches] = useState<AutocompleteOption[]>([])
-  const [changeEvent, setChangeEvent] =
-    useState<React.ChangeEvent<HTMLInputElement>>()
+  const [changeEvent, setChangeEvent] = useState<React.ChangeEvent<HTMLInputElement>>()
   const [currentIndex, setCurrentIndex] = useState(0)
 
   useEffect(() => {
@@ -84,8 +63,7 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = props => {
       return
     }
 
-    const inputStyle =
-      mainInputRef.current && window.getComputedStyle(mainInputRef.current)
+    const inputStyle = mainInputRef.current && window.getComputedStyle(mainInputRef.current)
     inputStyle && styleHint(hintWrapperRef, hintRef, inputStyle)
   })
 
@@ -152,24 +130,10 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = props => {
       hintWrapperRef.current.style.height = inputStyle.height
       hintWrapperRef.current.style.lineHeight = inputStyle.lineHeight
       hintWrapperRef.current.style.boxSizing = inputStyle.boxSizing
-      hintWrapperRef.current.style.margin = interpolateStyle(
-        inputStyle,
-        'margin',
-      )
-      hintWrapperRef.current.style.padding = interpolateStyle(
-        inputStyle,
-        'padding',
-      )
-      hintWrapperRef.current.style.borderStyle = interpolateStyle(
-        inputStyle,
-        'border',
-        'style',
-      )
-      hintWrapperRef.current.style.borderWidth = interpolateStyle(
-        inputStyle,
-        'border',
-        'width',
-      )
+      hintWrapperRef.current.style.margin = interpolateStyle(inputStyle, 'margin')
+      hintWrapperRef.current.style.padding = interpolateStyle(inputStyle, 'padding')
+      hintWrapperRef.current.style.borderStyle = interpolateStyle(inputStyle, 'border', 'style')
+      hintWrapperRef.current.style.borderWidth = interpolateStyle(inputStyle, 'border', 'width')
     }
 
     if (hintRef?.current?.style) {
@@ -185,9 +149,7 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = props => {
 
     // props.onValueChange(e.target.value)
     setUnmodifiedInputText(e.target.value)
-    const modifiedValue = valueModifier
-      ? valueModifier(e.target.value)
-      : e.target.value
+    const modifiedValue = valueModifier ? valueModifier(e.target.value) : e.target.value
     setHintTextAndId(modifiedValue)
 
     onSelect(null)
@@ -215,8 +177,7 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = props => {
 
       const isNonSelectableType = e.currentTarget.selectionEnd === null
       const caretIsAtTextEnd =
-        isNonSelectableType ||
-        e.currentTarget.selectionEnd === e.currentTarget.value.length
+        isNonSelectableType || e.currentTarget.selectionEnd === e.currentTarget.value.length
 
       return caretIsAtTextEnd
     })()
@@ -224,29 +185,15 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = props => {
     if (caretIsAtTextEnd && e.key === 'ArrowRight' && hint !== '') {
       handleOnFill()
       onSelect(match!)
-    } else if (
-      caretIsAtTextEnd &&
-      allowTabFill &&
-      e.key === 'Tab' &&
-      hint !== ''
-    ) {
+    } else if (caretIsAtTextEnd && allowTabFill && e.key === 'Tab' && hint !== '') {
       // e.preventDefault()
       handleOnFill()
       onSelect(match!)
-    } else if (
-      caretIsAtTextEnd &&
-      allowEnterFill &&
-      e.key === 'Enter' &&
-      hint !== ''
-    ) {
+    } else if (caretIsAtTextEnd && allowEnterFill && e.key === 'Enter' && hint !== '') {
       e.preventDefault()
       handleOnFill()
       onSelect(match!)
-    } else if (
-      caretIsAtTextEnd &&
-      (e.key === 'ArrowDown' || e.key === 'ArrowUp') &&
-      hint !== ''
-    ) {
+    } else if (caretIsAtTextEnd && (e.key === 'ArrowDown' || e.key === 'ArrowUp') && hint !== '') {
       e.preventDefault()
       setCurrentIndex(currentIndex + (e.key === 'ArrowDown' ? 1 : -1))
     }
@@ -261,10 +208,7 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = props => {
     onBlur,
     onFocus,
     onKeyDown,
-    ref:
-      childRef && typeof childRef !== 'string'
-        ? mergeRefs(childRef, mainInputRef)
-        : mainInputRef,
+    ref: childRef && typeof childRef !== 'string' ? mergeRefs(childRef, mainInputRef) : mainInputRef,
   })
 
   return (

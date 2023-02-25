@@ -52,6 +52,7 @@ router.post('/search', async (req, res) => {
 })
 
 router.post('/book', async (req, res) => {
+  // res.status(500).send({ errors: [{ error: 'foo' }] })
   const { passengers, offerId, currency, amount } = req.body
   try {
     const response = await duffel.orders.create({
